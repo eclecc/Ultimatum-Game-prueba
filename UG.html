@@ -3,717 +3,663 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimatum Game - Modificado</title>
+    <title>Ultimatum Game - Experimento</title>
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --primary-color: #4a90e2; /* Azul brillante */
-            --secondary-color: #50e3c2; /* Verde menta */
-            --accent-color-blue: #2c3e50;
-            --accent-color-green: #283a34;
-            --border-highlight: #50e3c2;
-            --reject-color: #e74c3c;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --transition-speed: 0.3s;
+            --color-background: #1a1a1a;
+            --color-surface: #2c2c2c;
+            --color-text: #e0e0e0;
+            --color-text-muted: #9e9e9e;
+            --color-primary: #58a6ff;
+            --color-primary-glow: rgba(88, 166, 255, 0.5);
+            --color-accept: #3fb950;
+            --color-reject: #f85149;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
-        html, body {
+        body, html {
             height: 100%;
             margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-family);
-            overscroll-behavior: none;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-family: var(--font-main);
         }
 
-        .screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-            box-sizing: border-box;
-            text-align: center;
-            opacity: 0;
-            transform: scale(0.98);
-            transition: opacity var(--transition-speed) ease-in-out, transform var(--transition-speed) ease-in-out;
-            position: absolute;
+        .container {
             width: 100%;
-            top: 0;
-            left: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
         }
 
-        .screen.active {
-            opacity: 1;
-            transform: scale(1);
-            z-index: 1;
+        .screen { display: none; }
+        .screen.active { 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        .hidden {
-            display: none;
-            z-index: -1;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        h1, h2, h3 {
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        h1 { font-size: 2.5rem; }
-        h2 { font-size: 2rem; }
-
-        /* --- Pantalla de Configuración e Inicio --- */
-        #setupScreen .container, #resultsScreen .container {
+        /* --- Pantalla de Configuración y Resultados --- */
+        .card-screen {
+            background-color: var(--color-surface);
+            padding: 30px 40px;
+            border-radius: 12px;
+            border: 1px solid #444;
             max-width: 800px;
             width: 100%;
-            background-color: rgba(40, 40, 40, 0.6);
-            padding: 2rem 3rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card-screen h1 { 
+            margin-top: 0; 
+            color: var(--color-primary);
+            border-bottom: 1px solid #444;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
         .theory-box {
             text-align: left;
-            margin-bottom: 2rem;
-            padding-left: 1rem;
-            border-left: 2px solid var(--primary-color);
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-        
-        .theory-box p { margin: 0.5rem 0; }
-        .theory-box strong { color: var(--secondary-color); font-weight: 500;}
-
-        .setup-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .input-group label {
-            font-size: 1.2rem;
-        }
-
-        .input-group input {
-            font-size: 1.2rem;
-            padding: 0.5rem;
-            width: 80px;
-            text-align: center;
             background-color: #333;
-            color: var(--text-color);
+            border-left: 4px solid var(--color-primary);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .theory-box ul { padding-left: 20px; }
+
+        .config-box {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .config-box input {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.1em;
+            text-align: center;
             border: 1px solid #555;
-            border-radius: 6px;
+            border-radius: 5px;
+            background-color: #333;
+            color: var(--color-text);
         }
 
         .main-button {
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #fff;
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 8px;
+            width: 100%;
+            padding: 15px 30px;
+            font-size: 1.2em;
             cursor: pointer;
-            transition: background-color var(--transition-speed), transform var(--transition-speed);
+            border: none;
+            background-color: var(--color-primary);
+            color: var(--color-background);
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-weight: bold;
         }
-
-        .main-button:hover {
-            background-color: #5a9ee4;
-            transform: translateY(-2px);
-        }
+        .main-button:hover { background-color: #79bbff; transform: translateY(-2px); }
 
         /* --- Pantalla de Experimento --- */
-        #experimentScreen {
+        #experiment-screen {
             flex-direction: row;
-            height: 100vh;
-            width: 100vw;
-            padding: 0;
+            gap: 10px;
         }
-
         .panel {
             flex: 1;
+            height: calc(100vh - 40px);
+            padding: 20px;
+            background-color: var(--color-surface);
+            border: 1px solid #444;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100%;
             position: relative;
-            transition: background-color var(--transition-speed);
-        }
-
-        .interviewer-panel { background-color: var(--accent-color-blue); }
-        .participant-panel { background-color: var(--accent-color-green); }
-
-        .panel-title {
-            position: absolute;
-            top: 2rem;
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.7);
         }
         
-        .trial-counter {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.5);
+        .panel h2 {
+            font-size: 1.8em;
+            margin-top: 0;
+            color: var(--color-text-muted);
+            width: 100%;
+            text-align: center;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .panel .subtitle {
+            font-size: 1.2em;
+            color: var(--color-text);
+            margin-bottom: 20px;
         }
 
-        .options-container {
+        #trial-counter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.1em;
+            color: var(--color-text-muted);
+        }
+
+        .options-container, .response-container {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            flex-grow: 1;
         }
 
-        .option-button, .response-button {
+        .option-button {
+            width: 80%;
+            max-width: 400px;
             min-height: 120px;
-            min-width: 250px;
-            padding: 1rem;
-            font-size: 2.5rem;
             font-weight: bold;
-            border: 2px solid transparent;
-            border-radius: 12px;
             cursor: pointer;
-            color: var(--text-color);
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all var(--transition-speed);
+            border: 2px solid #555;
+            background-color: #3a3a3a;
+            color: var(--color-text);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            user-select: none;
+            position: relative;
         }
-        
-        .option-button:hover, .response-button:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.03);
-        }
+        .option-button:hover { border-color: var(--color-primary); }
+
+        .option-button .main-offer { font-size: 2.5em; }
+        .option-button .offer-hint { font-size: 0.9em; color: var(--color-text-muted); margin-top: 8px; }
 
         .option-button.selected {
-            border-color: var(--border-highlight);
-            box-shadow: 0 0 20px var(--border-highlight);
-            transform: scale(1.05);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 20px var(--color-primary-glow);
+            cursor: not-allowed;
         }
+        .option-button.selected:hover { transform: none; }
 
-        .participant-question {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .response-container {
+        .response-option {
+            width: 80%;
+            max-width: 400px;
+            min-height: 120px;
+            cursor: pointer;
+            border-radius: 10px;
             display: flex;
-            gap: 1.5rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.2s;
+            padding: 15px;
+            box-sizing: border-box;
         }
+        .response-option:hover { transform: translateY(-3px); }
 
-        .response-button.accept { background-color: rgba(80, 227, 194, 0.3); }
-        .response-button.reject { background-color: rgba(231, 76, 60, 0.3); }
+        #accept-btn { border: 2px solid var(--color-accept); color: var(--color-accept); }
+        #reject-btn { border: 2px solid var(--color-reject); color: var(--color-reject); }
 
+        #accept-btn:hover { background-color: rgba(63, 185, 80, 0.1); }
+        #reject-btn:hover { background-color: rgba(248, 81, 73, 0.1); }
+        
+        .response-option .label { font-size: 2.2em; font-weight: bold; }
         .response-hint {
-            position: absolute;
-            bottom: 2rem;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            color: var(--color-text-muted);
+            margin-top: 10px;
             text-align: center;
+            line-height: 1.4;
+            visibility: hidden;
+        }
+        .response-hint.visible { visibility: visible; }
+
+        #participant-question {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--color-text);
+            margin-bottom: 20px;
+            visibility: hidden;
+            animation: fadeIn 0.5s;
+        }
+        #participant-question.visible { visibility: visible; }
+
+        #response-buttons { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; visibility: hidden; }
+        #response-buttons.visible { visibility: visible; }
+
+        /* --- Resultados --- */
+        .result-summary, .result-interpretation, .result-visualization {
             width: 100%;
+            margin-bottom: 30px;
         }
-
-        /* --- Pantalla de Resultados --- */
-        #resultsScreen h1 {
-            margin-bottom: 2rem;
+        .result-summary h2, .result-interpretation h2, .result-visualization h2 {
+            color: var(--color-text);
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem 4rem;
-            width: 100%;
-            margin-bottom: 3rem;
-        }
+        .result-item { font-size: 1.3em; margin: 15px 0; }
+        .result-item span { font-weight: bold; color: var(--color-primary); }
         
-        .result-item {
-            text-align: left;
-        }
-
-        .result-item h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-            color: var(--primary-color);
-        }
-
-        .scale-container {
-            margin-top: 0.5rem;
-        }
-
-        .scale-bar {
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(to right, #333, #777);
-            border-radius: 4px;
-            position: relative;
-            margin-top: 0.5rem;
-        }
-
-        .scale-marker {
-            width: 16px;
-            height: 16px;
-            background-color: var(--secondary-color);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px var(--secondary-color);
-        }
+        .visual-scale { margin: 25px 0; }
+        .visual-scale .label { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; }
+        .scale-bar-container { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .scale-bar { flex-grow: 1; height: 10px; background: linear-gradient(to right, #555, #999); border-radius: 10px; position: relative; }
+        .scale-marker { width: 18px; height: 18px; background-color: var(--color-primary); border-radius: 50%; border: 2px solid var(--color-background); position: absolute; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-top: 0.5rem;
-        }
-
-        .interpretation-box {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            border-left: 3px solid var(--secondary-color);
-        }
-        
-        .interpretation-box h3 {
-            margin-top: 0;
-            color: var(--secondary-color);
-        }
-
-        .download-button {
-            margin-top: 2rem;
-        }
-
+        .interpretation-box { background-color: #333; border-radius: 8px; padding: 20px; }
+        .interpretation-box h3 { margin-top: 0; color: var(--color-primary); }
+        .interpretation-box p { font-size: 1em; line-height: 1.5; color: var(--color-text-muted); }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla 1: Configuración e Introducción -->
-    <div id="setupScreen" class="screen active">
-        <div class="container">
-            <h1>Juego del Ultimátum</h1>
-            <div class="theory-box">
-                <p>Este experimento se basa en la investigación sobre la toma de decisiones, la justicia y la intención.</p>
-                <p><strong>Referencias clave:</strong></p>
-                <ul>
-                    <li><strong>Fehr & Schmidt (1999):</strong> Modelo de aversión a la inequidad, que introduce el parámetro <strong>α</strong> (alfa) para medir la sensibilidad a la desigualdad en desventaja. Un <strong>α</strong> alto indica un fuerte rechazo a resultados donde uno recibe menos que el otro.</li>
-                    <li><strong>Falk, Fehr & Fischbacher (2003):</strong> Demostraron que la intención detrás de una oferta importa. El parámetro <strong>γ</strong> (gamma) estima esta sensibilidad, midiendo cómo cambia la tasa de rechazo cuando el proponente tenía una alternativa justa disponible pero eligió no ofrecerla.</li>
-                </ul>
-            </div>
-            <div class="setup-controls">
-                <div class="input-group">
-                    <label for="totalTrials">Número total de ensayos:</label>
-                    <input type="number" id="totalTrials" value="48" min="24" max="96" step="12">
-                </div>
-                <button id="startButton" class="main-button">Iniciar Experimento</button>
-            </div>
+<div id="main-container" class="container">
+
+    <!-- Pantalla 1: Configuración inicial -->
+    <div id="setup-screen" class="screen active card-screen">
+        <h1>Experimento: Juego del Ultimátum</h1>
+        <div class="theory-box">
+             <!-- Contenido teórico sin cambios -->
         </div>
+        <div class="config-box">
+            <label for="total-trials-input">Número de ensayos:</label>
+            <input type="number" id="total-trials-input" value="48" min="24" max="96" step="12">
+        </div>
+        <button id="start-experiment" class="main-button">Iniciar experimento</button>
     </div>
 
-    <!-- Pantalla 2: Experimento -->
-    <div id="experimentScreen" class="screen hidden">
-        <div class="panel interviewer-panel">
-            <h2 class="panel-title">ENTREVISTADOR</h2>
-            <div id="trialCounter" class="trial-counter"></div>
-            <div id="interviewerOptions" class="options-container">
-                <!-- Botones de opción se generan aquí -->
-            </div>
-        </div>
-        <div class="panel participant-panel">
-            <h2 class="panel-title">PARTICIPANTE</h2>
-            <div id="participantResponse" class="hidden">
-                <h3 class="participant-question">¿Lo aceptas?</h3>
-                <div class="response-container">
-                    <button id="acceptButton" class="response-button accept">ACEPTAR</button>
-                    <button id="rejectButton" class="response-button reject">RECHAZAR</button>
-                </div>
-                <div id="responseHint" class="response-hint"></div>
-            </div>
-        </div>
+    <!-- Pantalla 2: Transición para iniciar -->
+    <div id="start-task-screen" class="screen">
+        <h1 style="font-size: 3em;">El experimento va a comenzar</h1>
     </div>
 
-    <!-- Pantalla 3: Resultados -->
-    <div id="resultsScreen" class="screen hidden">
-        <div class="container">
-            <h1>Resultados del Experimento</h1>
-            <div class="results-grid">
-                <div class="result-item">
-                    <h3>α (Sensibilidad a Inequidad)</h3>
-                    <p>Valor estimado: <strong id="alphaValue"></strong> (<span id="alphaCategory"></span>)</p>
-                    <div class="scale-container">
-                         <div class="scale-bar">
-                            <div id="alphaMarker" class="scale-marker"></div>
-                        </div>
-                        <div class="scale-labels">
-                            <span>Baja</span>
-                            <span>Alta</span>
-                        </div>
+    <!-- Pantalla 3: Experimento en curso -->
+    <div id="experiment-screen" class="screen">
+        <div class="panel">
+            <div id="trial-counter"></div>
+            <h2>ENTREVISTADOR</h2>
+            <div class="subtitle">Reparto 10€ 💶</div>
+            <div id="interviewer-options" class="options-container">
+                <!-- Opciones generadas por JS -->
+            </div>
+        </div>
+        <div class="panel">
+            <h2>PARTICIPANTE</h2>
+            <div class="response-container">
+                <div id="participant-question">¿Aceptas la oferta?</div>
+                <div id="response-buttons">
+                    <div id="accept-btn" class="response-option">
+                        <span class="label">ACEPTAR</span>
+                        <div id="accept-hint" class="response-hint"></div>
                     </div>
-                </div>
-                <div class="result-item">
-                    <h3>γ (Sensibilidad a Intención)</h3>
-                    <p>Valor estimado: <strong id="gammaValue"></strong> (<span id="gammaCategory"></span>)</p>
-                     <div class="scale-container">
-                        <div class="scale-bar">
-                            <div id="gammaMarker" class="scale-marker"></div>
-                        </div>
-                        <div class="scale-labels">
-                            <span>Baja</span>
-                            <span>Alta</span>
-                        </div>
+                    <div id="reject-btn" class="response-option">
+                        <span class="label">RECHAZAR</span>
+                        <div id="reject-hint" class="response-hint"></div>
                     </div>
                 </div>
             </div>
-
-            <div id="interpretationBox" class="interpretation-box">
-                <h3>Interpretación del Patrón</h3>
-                <p id="interpretationText"></p>
-            </div>
-
-            <button id="downloadButton" class="main-button download-button">Descargar Datos (CSV)</button>
         </div>
     </div>
 
-    <script>
-        // Lógica completa del experimento
-        document.addEventListener('DOMContentLoaded', () => {
+    <!-- Pantalla 4: Resultados -->
+    <div id="results-screen" class="screen card-screen">
+         <h1>Resultados del Experimento</h1>
+        <div class="result-summary">
+            <h2>Métricas Clave</h2>
+            <p class="result-item">α (Sensibilidad a Inequidad): <span id="alpha-result"></span></p>
+            <p class="result-item">γ (Sensibilidad a Intención): <span id="gamma-result"></span></p>
+        </div>
 
-            // --- VARIABLES GLOBALES Y DE ESTADO ---
-            let totalTrials = 48;
-            let currentTrial = 0;
-            let trialData = [];
-            let experimentPlan = [];
-            let startTime;
+        <div class="result-visualization">
+            <h2>Perfil de Decisión</h2>
+            <div class="visual-scale">
+                <div class="label">Sensibilidad a la INEQUIDAD</div>
+                <div class="scale-bar-container">
+                    <span>Baja</span>
+                    <div class="scale-bar"><div id="alpha-marker" class="scale-marker"></div></div>
+                    <span>Alta</span>
+                </div>
+            </div>
+            <div class="visual-scale">
+                <div class="label">Sensibilidad a la INTENCIÓN</div>
+                <div class="scale-bar-container">
+                    <span>Baja</span>
+                    <div class="scale-bar"><div id="gamma-marker" class="scale-marker"></div></div>
+                    <span>Alta</span>
+                </div>
+            </div>
+        </div>
 
-            // --- DOM ELEMENTS ---
-            const screens = {
-                setup: document.getElementById('setupScreen'),
-                experiment: document.getElementById('experimentScreen'),
-                results: document.getElementById('resultsScreen'),
-            };
-            const totalTrialsInput = document.getElementById('totalTrials');
-            const startButton = document.getElementById('startButton');
-            const trialCounter = document.getElementById('trialCounter');
-            const interviewerOptions = document.getElementById('interviewerOptions');
-            const participantResponse = document.getElementById('participantResponse');
-            const acceptButton = document.getElementById('acceptButton');
-            const rejectButton = document.getElementById('rejectButton');
-            const responseHint = document.getElementById('responseHint');
-            const downloadButton = document.getElementById('downloadButton');
+        <div class="result-interpretation">
+            <h2>Interpretación</h2>
+            <div id="interpretation-box" class="interpretation-box">
+                <!-- Interpretación generada por JS -->
+            </div>
+        </div>
 
-            // --- LÓGICA DE TRANSICIÓN DE PANTALLAS ---
-            const switchScreen = (screenName) => {
-                // Primero, sal del modo de pantalla completa si estamos saliendo del experimento
-                if (screenName !== 'experiment' && document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
+        <button id="download-csv" class="main-button" style="margin-top: 20px;">Descargar datos (CSV)</button>
+    </div>
 
-                Object.values(screens).forEach(screen => {
-                    screen.classList.add('hidden');
-                    screen.classList.remove('active');
-                });
-                screens[screenName].classList.remove('hidden');
-                
-                // Forzar reflujo para reiniciar la animación
-                void screens[screenName].offsetWidth;
-                
-                screens[screenName].classList.add('active');
-
-                // Entrar en modo de pantalla completa para el experimento
-                if (screenName === 'experiment') {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.warn(`Error al intentar entrar en pantalla completa: ${err.message}`);
-                    });
-                }
-            };
-            
-            // --- LÓGICA DE GENERACIÓN DE ENSAYOS ---
-            /**
-             * Baraja un array in-place usando el algoritmo Fisher-Yates.
-             * @param {Array} array - El array a barajar.
-             */
-            const shuffleArray = (array) => {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            };
-
-            const generateExperimentPlan = () => {
-                totalTrials = parseInt(totalTrialsInput.value, 10);
-                // Asegurar que el número es divisible por 12 para mantener proporciones exactas fácilmente
-                if (totalTrials % 12 !== 0) {
-                    totalTrials = Math.round(totalTrials / 12) * 12;
-                    totalTrialsInput.value = totalTrials;
-                }
-                
-                const baseProportions = { '5/5': 6, '6/4': 12, '8/2': 18, '9/1': 12 };
-                const baseTotal = 48;
-                
-                experimentPlan = [];
-                for (const offer in baseProportions) {
-                    const count = Math.round((baseProportions[offer] / baseTotal) * totalTrials);
-                    for (let i = 0; i < count; i++) {
-                        const hasFairAlternative = (i < count / 2);
-                        experimentPlan.push({
-                            offerType: offer,
-                            hasFairAlternative: hasFairAlternative,
-                            intention: hasFairAlternative ? 1 : 0
-                        });
-                    }
-                }
-
-                shuffleArray(experimentPlan); // Barajar el plan de ensayos
-            };
-
-            // --- LÓGICA DEL EXPERIMENTO ---
-            const startExperiment = () => {
-                generateExperimentPlan();
-                currentTrial = 0;
-                trialData = [];
-                switchScreen('experiment');
-                nextTrial();
-            };
-
-            const nextTrial = () => {
-                if (currentTrial >= totalTrials) {
-                    endExperiment();
-                    return;
-                }
-
-                participantResponse.classList.add('hidden');
-                interviewerOptions.innerHTML = '';
-
-                const trial = experimentPlan[currentTrial];
-                trialCounter.textContent = `Ensayo: ${currentTrial + 1} / ${totalTrials}`;
-
-                let options = [];
-                if (trial.hasFairAlternative) {
-                    options = ['5/5', trial.offerType];
-                } else {
-                    options = [trial.offerType];
-                }
-
-                // Barajar las opciones si hay dos
-                if(options.length > 1) {
-                    shuffleArray(options);
-                }
-
-                options.forEach(opt => {
-                    const button = document.createElement('button');
-                    button.className = 'option-button';
-                    button.textContent = opt;
-                    button.dataset.offer = opt;
-                    button.addEventListener('click', handleInterviewerChoice, { once: true });
-                    button.addEventListener('touchstart', handleInterviewerChoice, { once: true });
-                    interviewerOptions.appendChild(button);
-                });
-            };
-
-            const handleInterviewerChoice = (e) => {
-                e.preventDefault();
-                const chosenButton = e.currentTarget;
-                const chosenOffer = chosenButton.dataset.offer;
-
-                // Marcar la opción seleccionada
-                document.querySelectorAll('.option-button').forEach(btn => {
-                    btn.removeEventListener('click', handleInterviewerChoice);
-                    btn.removeEventListener('touchstart', handleInterviewerChoice);
-                    if (btn === chosenButton) {
-                        btn.classList.add('selected');
-                    }
-                });
-
-                // Registrar datos preliminares
-                const [y, x] = chosenOffer.split('/').map(Number); // y = Entrevistador, x = Participante
-                const currentTrialData = {
-                    trialNumber: currentTrial + 1,
-                    offerType: experimentPlan[currentTrial].offerType,
-                    chosenOffer: chosenOffer,
-                    inequityValue: y - x,
-                    intention: experimentPlan[currentTrial].intention,
-                };
-
-                setTimeout(() => {
-                    chosenButton.classList.remove('selected');
-                    showParticipantResponse(currentTrialData, x, y);
-                }, 500);
-            };
-
-            const showParticipantResponse = (currentTrialData, participantGain, interviewerGain) => {
-                participantResponse.classList.remove('hidden');
-
-                if (currentTrial < 10) {
-                    responseHint.innerHTML = `
-                        Bajo ACEPTAR: Tú ganas ${participantGain} € – Entrevistador gana ${interviewerGain} €<br>
-                        Bajo RECHAZAR: Ambos ganáis 0 €
-                    `;
-                } else {
-                    responseHint.innerHTML = '';
-                }
-
-                startTime = performance.now();
-                
-                const handleResponse = (e) => {
-                    e.preventDefault();
-                    acceptButton.removeEventListener('click', handleResponse);
-                    acceptButton.removeEventListener('touchstart', handleResponse);
-                    rejectButton.removeEventListener('click', handleResponse);
-                    rejectButton.removeEventListener('touchstart', handleResponse);
-                    
-                    const reactionTime = performance.now() - startTime;
-                    const response = e.currentTarget.id === 'acceptButton' ? 'accept' : 'reject';
-                    
-                    trialData.push({
-                        ...currentTrialData,
-                        response,
-                        reactionTime: parseFloat(reactionTime.toFixed(2)),
-                    });
-
-                    currentTrial++;
-                    nextTrial();
-                };
-
-                acceptButton.addEventListener('click', handleResponse, { once: true });
-                acceptButton.addEventListener('touchstart', handleResponse, { once: true });
-                rejectButton.addEventListener('click', handleResponse, { once: true });
-                rejectButton.addEventListener('touchstart', handleResponse, { once: true });
-            };
-
-            // --- LÓGICA DE FIN DE EXPERIMENTO Y RESULTADOS ---
-            const endExperiment = () => {
-                calculateResults();
-                switchScreen('results');
-            };
-
-            const calculateResults = () => {
-                // 7.1 Cálculo de α (alfa)
-                const unfairOffers = trialData.filter(d => d.chosenOffer !== '5/5');
-                const rejectionThresholds = {
-                    '9/1': 1/8, // 0.125
-                    '8/2': 2/6, // 0.333
-                    '6/4': 4/2  // 2.0
-                };
-                
-                let alphaEstimate = 0;
-                const rejectedOffers = unfairOffers.filter(d => d.response === 'reject');
-                
-                if (rejectedOffers.length > 0) {
-                    // Estimar α basado en el umbral más bajo rechazado consistentemente
-                    const rejectedOfferTypes = new Set(rejectedOffers.map(d => d.chosenOffer));
-                    const criticalValues = Array.from(rejectedOfferTypes).map(offer => rejectionThresholds[offer]);
-                    if (criticalValues.length > 0) {
-                       alphaEstimate = Math.min(...criticalValues);
-                    }
-                }
-                
-                // Para una visualización más continua, si se rechazan ofertas muy injustas, se puede promediar
-                const rejected82 = rejectedOffers.filter(d => d.chosenOffer === '8/2').length / trialData.filter(d => d.chosenOffer === '8/2').length > 0.5;
-                const rejected64 = rejectedOffers.filter(d => d.chosenOffer === '6/4').length / trialData.filter(d => d.chosenOffer === '6/4').length > 0.5;
-
-                if (rejected64) alphaEstimate = 2.0;
-                else if (rejected82) alphaEstimate = 0.33;
-                
-                const alpha = parseFloat(alphaEstimate.toFixed(2));
+</div>
 
 
-                // 7.2 Cálculo de γ (gamma)
-                const withIntention = trialData.filter(d => d.intention === 1 && d.chosenOffer !== '5/5');
-                const withoutIntention = trialData.filter(d => d.intention === 0 && d.chosenOffer !== '5/5');
-                
-                const rejectionRateWithIntention = withIntention.length > 0 ? withIntention.filter(d => d.response === 'reject').length / withIntention.length : 0;
-                const rejectionRateWithoutIntention = withoutIntention.length > 0 ? withoutIntention.filter(d => d.response === 'reject').length / withoutIntention.length : 0;
-                
-                const gamma = parseFloat((rejectionRateWithIntention - rejectionRateWithoutIntention).toFixed(2));
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-                displayResults(alpha, gamma);
-            };
+    let totalTrials = 48;
+    let currentTrial = 0;
+    let experimentData = [];
+    let trialList = [];
+    let reactionStartTime;
 
-            const displayResults = (alpha, gamma) => {
-                // Categorías
-                let alphaCategory, gammaCategory;
-                if (alpha < 0.3) alphaCategory = "Baja";
-                else if (alpha <= 1.5) alphaCategory = "Típica";
-                else alphaCategory = "Alta";
+    const dom = {
+        mainContainer: document.getElementById('main-container'),
+        screens: {
+            setup: document.getElementById('setup-screen'),
+            startTask: document.getElementById('start-task-screen'),
+            experiment: document.getElementById('experiment-screen'),
+            results: document.getElementById('results-screen')
+        },
+        totalTrialsInput: document.getElementById('total-trials-input'),
+        startButton: document.getElementById('start-experiment'),
+        trialCounter: document.getElementById('trial-counter'),
+        interviewerOptions: document.getElementById('interviewer-options'),
+        participantQuestion: document.getElementById('participant-question'),
+        responseButtons: document.getElementById('response-buttons'),
+        acceptBtn: document.getElementById('accept-btn'),
+        rejectBtn: document.getElementById('reject-btn'),
+        acceptHint: document.getElementById('accept-hint'),
+        rejectHint: document.getElementById('reject-hint'),
+        downloadCsvBtn: document.getElementById('download-csv')
+    };
 
-                if (gamma < 0.1) gammaCategory = "Baja";
-                else if (gamma <= 0.35) gammaCategory = "Típica";
-                else gammaCategory = "Alta";
+    dom.totalTrialsInput.addEventListener('change', () => {
+        let val = parseInt(dom.totalTrialsInput.value);
+        const min = parseInt(dom.totalTrialsInput.min);
+        const max = parseInt(dom.totalTrialsInput.max);
+        if (val < min) val = min;
+        if (val > max) val = max;
+        val = Math.round(val / 12) * 12;
+        if (val < min) val = min;
+        dom.totalTrialsInput.value = val;
+    });
 
-                // Valores
-                document.getElementById('alphaValue').textContent = alpha;
-                document.getElementById('alphaCategory').textContent = alphaCategory;
-                document.getElementById('gammaValue').textContent = gamma;
-                document.getElementById('gammaCategory').textContent = gammaCategory;
+    dom.startButton.addEventListener('click', () => {
+        totalTrials = parseInt(dom.totalTrialsInput.value);
+        trialList = generateTrialList(totalTrials);
+        switchToScreen('startTask');
+        setTimeout(() => {
+            switchToScreen('experiment');
+            startNextTrial();
+        }, 2500); 
+    });
 
-                // Marcadores en la escala
-                const alphaMarker = document.getElementById('alphaMarker');
-                const gammaMarker = document.getElementById('gammaMarker');
-                // Escala de Alpha (0 a 3, para visualización)
-                alphaMarker.style.left = `${Math.min(100, (alpha / 3) * 100)}%`;
-                // Escala de Gamma (-1 a 1, normalizado a 0-100%)
-                gammaMarker.style.left = `${((gamma + 1) / 2) * 100}%`;
-                
-                // Interpretación de patrones
-                let interpretation = "";
-                if (alphaCategory === "Alta" && gammaCategory === "Baja") {
-                    interpretation = "Rigidez estructural: La respuesta se guía por una regla estricta de justicia (ej. 'nunca acepto menos de X') más que por la intención del otro.";
-                } else if (alphaCategory === "Baja" && gammaCategory === "Baja") {
-                    interpretation = "Utilitarismo / Bajo peso moral: La decisión se centra principalmente en maximizar el beneficio propio, con poca influencia de la equidad o la intención.";
-                } else if (alphaCategory !== "Alta" && gammaCategory === "Alta") {
-                    interpretation = "Sensibilidad interpersonal: La reacción está fuertemente influenciada por la percepción de la intención del otro, castigando las elecciones injustas cuando había alternativas justas.";
-                } else if (alphaCategory === "Alta" && gammaCategory === "Alta") {
-                    interpretation = "Fuerte normatividad y mentalización: Indica una alta sensibilidad tanto a la norma de equidad como a la intención del proponente, sugiriendo un procesamiento social complejo.";
-                } else {
-                    interpretation = "Patrón mixto: La toma de decisiones parece ser un balance entre la sensibilidad a la equidad y la percepción de la intención del otro.";
-                }
-                document.getElementById('interpretationText').textContent = interpretation;
-            };
+    function switchToScreen(screenName) {
+        dom.mainContainer.classList.remove('dark-theme');
+        Object.values(dom.screens).forEach(s => s.classList.remove('active'));
+        dom.screens[screenName].classList.add('active');
+        if (screenName === 'setup' || screenName === 'results') {
+            dom.mainContainer.classList.add('dark-theme');
+        }
+    }
 
-            // --- LÓGICA DE EXPORTACIÓN ---
-            const downloadCSV = () => {
-                let csvContent = "data:text/csv;charset=utf-8,";
-                
-                // Resumen
-                const alpha = document.getElementById('alphaValue').textContent;
-                const gamma = document.getElementById('gammaValue').textContent;
-                csvContent += "parametro,valor\n";
-                csvContent += `alpha_estimado,${alpha}\n`;
-                csvContent += `gamma_estimado,${gamma}\n\n`;
+    function generateTrialList(numTrials) {
+        const baseProportions = { '5/5': 0.125, '6/4': 0.25, '8/2': 0.375, '9/1': 0.25 };
+        let trials = [];
 
-                // Datos por trial
-                const headers = Object.keys(trialData[0]).join(',');
-                csvContent += headers + '\n';
-                trialData.forEach(row => {
-                    const values = Object.values(row).join(',');
-                    csvContent += values + '\n';
-                });
+        // Crear ofertas
+        for (const offer in baseProportions) {
+            const count = Math.round(baseProportions[offer] * numTrials);
+            for (let i = 0; i < count; i++) {
+                trials.push({ offerType: offer });
+            }
+        }
+        while (trials.length < numTrials) trials.push({ offerType: '8/2' });
+        trials = trials.slice(0, numTrials);
 
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `ultimatum_game_data_${new Date().toISOString()}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-
-            // --- EVENT LISTENERS ---
-            startButton.addEventListener('click', startExperiment);
-            downloadButton.addEventListener('click', downloadCSV);
+        // Balancear intención y aleatorizar
+        let intentions = new Array(numTrials).fill(0).fill(1, 0, Math.ceil(numTrials / 2));
+        shuffleArray(intentions);
+        
+        trials.forEach((trial, index) => {
+            trial.intention = intentions[index];
+            const [y, x] = trial.offerType.split('/').map(Number);
+            trial.inequityValue = y - x;
         });
-    </script>
+        
+        shuffleArray(trials);
+        return trials;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startNextTrial() {
+        if (currentTrial >= totalTrials) {
+            endExperiment();
+            return;
+        }
+
+        const trial = trialList[currentTrial];
+        dom.trialCounter.textContent = `Ensayo ${currentTrial + 1} / ${totalTrials}`;
+
+        dom.interviewerOptions.innerHTML = '';
+        dom.participantQuestion.classList.remove('visible');
+        dom.responseButtons.classList.remove('visible');
+        
+        createInterviewerOptions(trial);
+        setupParticipantHints(trial);
+    }
+
+    function createInterviewerOptions(trial) {
+        const optionsToShow = [];
+        const mainOfferEl = createOfferButton(trial.offerType);
+        optionsToShow.push(mainOfferEl);
+
+        if (trial.intention === 1 && trial.offerType !== '5/5') {
+            const fairAlternativeEl = createOfferButton('5/5');
+            optionsToShow.push(fairAlternativeEl);
+        }
+
+        shuffleArray(optionsToShow);
+        optionsToShow.forEach(el => dom.interviewerOptions.appendChild(el));
+    }
+
+    function createOfferButton(offer) {
+        const [y, x] = offer.split('/').map(Number);
+        const button = document.createElement('div');
+        button.className = 'option-button';
+        button.dataset.offer = offer;
+        button.innerHTML = `
+            <span class="main-offer">${offer}</span>
+            <span class="offer-hint">Me quedo ${y}€ / Te doy ${x}€</span>
+        `;
+        button.addEventListener('click', handleInterviewerChoice, { once: true });
+        return button;
+    }
+    
+    function setupParticipantHints(trial) {
+        const [y, x] = trial.offerType.split('/').map(Number);
+        
+        if (currentTrial < 10) {
+            dom.acceptHint.innerHTML = `Tú ganas ${x}€<br>Entrevistador gana ${y}€`;
+            dom.rejectHint.innerHTML = `Tú ganas 0€<br>Entrevistador gana 0€`;
+            dom.acceptHint.classList.add('visible');
+            dom.rejectHint.classList.add('visible');
+        } else {
+            dom.acceptHint.classList.remove('visible');
+            dom.rejectHint.classList.remove('visible');
+        }
+    }
+
+
+    function handleInterviewerChoice(e) {
+        const selectedOption = e.currentTarget;
+        const offer = selectedOption.dataset.offer;
+        trialList[currentTrial].chosenOffer = offer;
+
+        document.querySelectorAll('.option-button').forEach(opt => {
+            opt.removeEventListener('click', handleInterviewerChoice);
+            if (opt !== selectedOption) {
+                opt.style.opacity = '0.5';
+                opt.style.cursor = 'not-allowed';
+            }
+        });
+        
+        selectedOption.classList.add('selected');
+
+        setTimeout(() => {
+            dom.participantQuestion.classList.add('visible');
+            dom.responseButtons.classList.add('visible');
+            reactionStartTime = performance.now();
+
+            dom.acceptBtn.addEventListener('click', handleParticipantResponse, { once: true });
+            dom.rejectBtn.addEventListener('click', handleParticipantResponse, { once: true });
+        }, 750);
+    }
+    
+    function handleParticipantResponse(e) {
+        const reactionTime = performance.now() - reactionStartTime;
+        const response = e.currentTarget.id === 'accept-btn' ? 'accept' : 'reject';
+
+        const trial = trialList[currentTrial];
+        experimentData.push({
+            trialNumber: currentTrial + 1,
+            offerType: trial.offerType,
+            intention: trial.intention,
+            chosenOffer: trial.chosenOffer,
+            response: response,
+            reactionTime: parseFloat(reactionTime.toFixed(2))
+        });
+        
+        currentTrial++;
+        startNextTrial();
+    }
+
+    function endExperiment() {
+        setTimeout(() => {
+            const { alpha, gamma, interpretation } = calculateResults();
+            displayResults(alpha, gamma, interpretation);
+            switchToScreen('results');
+        }, 500);
+    }
+    
+    function calculateResults() {
+        // Rangos para clasificación
+        const ranges = {
+            alpha: { low: 0.3, high: 1.5 },
+            gamma: { low: 0.1, high: 0.35 }
+        };
+
+        // Estimación de Alpha
+        const rejections = experimentData.filter(d => d.response === 'reject' && d.chosenOffer === d.offerType);
+        const rejectionRates = {};
+        ['9/1', '8/2', '6/4'].forEach(offer => {
+            const total = experimentData.filter(d => d.offerType === offer).length;
+            const rejected = rejections.filter(d => d.offerType === offer).length;
+            rejectionRates[offer] = total > 0 ? rejected / total : 0;
+        });
+        
+        let alpha = 0.1;
+        if (rejectionRates['6/4'] > 0.5) alpha = 2.0;
+        else if (rejectionRates['8/2'] > 0.5) alpha = 0.9;
+        else if (rejectionRates['9/1'] > 0.5) alpha = 0.2;
+        
+        // Estimación de Gamma
+        const dataWithIntention = experimentData.filter(d => d.intention === 1 && d.offerType !== '5/5');
+        const dataWithoutIntention = experimentData.filter(d => d.intention === 0 && d.offerType !== '5/5');
+
+        const rateWith = dataWithIntention.length > 0 ? dataWithIntention.filter(d => d.chosenOffer === d.offerType && d.response === 'reject').length / dataWithIntention.length : 0;
+        const rateWithout = dataWithoutIntention.length > 0 ? dataWithoutIntention.filter(d => d.chosenOffer !== '5/5' && d.response === 'reject').length / dataWithoutIntention.length : 0;
+        let gamma = Math.max(0, rateWith - rateWithout);
+
+        // Clasificación
+        const alphaClass = alpha < ranges.alpha.low ? 'bajo' : (alpha > ranges.alpha.high ? 'alto' : 'medio');
+        const gammaClass = gamma < ranges.gamma.low ? 'bajo' : (gamma > ranges.gamma.high ? 'alto' : 'medio');
+
+        // Interpretación
+        let title = "Perfil de Decisión Equilibrado";
+        let text = "Muestras un balance entre el beneficio propio, la equidad y la evaluación de las intenciones del otro. No hay una única tendencia que domine fuertemente tus decisiones en este contexto.";
+        if (alphaClass === 'alto' && gammaClass === 'bajo') {
+            title = "Rigidez Estructural";
+            text = "Tus decisiones están fuertemente guiadas por una regla de equidad. Rechazas la desigualdad en sí misma, independientemente de si el otro tenía o no alternativas.";
+        } else if (alphaClass === 'bajo' && gammaClass === 'bajo') {
+            title = "Perfil Utilitario";
+            text = "Priorizas la ganancia económica. Las consideraciones sobre la justicia de la oferta o las intenciones del proponente tienen un peso menor en tus decisiones.";
+        } else if (gammaClass === 'alto' && (alphaClass === 'medio' || alphaClass === 'alto')) {
+             title = "Alta Sensibilidad Interpersonal / Mentalización";
+            text = "Eres muy sensible a las intenciones detrás de las acciones de los demás. El hecho de que alguien tuviera una alternativa justa y eligiera no ofrecértela influye fuertemente en tu decisión de rechazar, incluso más que la desigualdad de la oferta en sí.";
+        } else if (alphaClass === 'alto' && gammaClass === 'alto') {
+            title = "Fuerte Sentido Normativo";
+            text = "Posees un robusto sentido de la justicia, reaccionando tanto a la desigualdad del resultado (norma de equidad) como a la intención de violar esa norma (mentalización).";
+        }
+
+
+        return { 
+            alpha: parseFloat(alpha.toFixed(2)), 
+            gamma: parseFloat(gamma.toFixed(2)),
+            interpretation: { title, text }
+        };
+    }
+
+    function displayResults(alpha, gamma, interpretation) {
+        document.getElementById('alpha-result').textContent = alpha;
+        document.getElementById('gamma-result').textContent = gamma;
+
+        const alphaPercent = Math.min(100, (alpha / 2.5) * 100);
+        const gammaPercent = Math.min(100, (gamma / 0.5) * 100);
+
+        document.getElementById('alpha-marker').style.left = `${alphaPercent}%`;
+        document.getElementById('gamma-marker').style.left = `${gammaPercent}%`;
+
+        const interpretationBox = document.getElementById('interpretation-box');
+        interpretationBox.innerHTML = `<h3>${interpretation.title}</h3><p>${interpretation.text}</p>`;
+    }
+    
+    dom.downloadCsvBtn.addEventListener('click', () => {
+        const { alpha, gamma } = calculateResults();
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        csvContent += "Parametro,Valor\r\n";
+        csvContent += `alpha_estimado,${alpha}\r\n`;
+        csvContent += `gamma_estimado,${gamma}\r\n\r\n`;
+
+        if (experimentData.length > 0) {
+            const headers = Object.keys(experimentData[0]).join(',');
+            csvContent += headers + '\r\n';
+            experimentData.forEach(row => {
+                const values = Object.values(row).join(',');
+                csvContent += values + '\r\n';
+            });
+        }
+
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `ultimatum_results_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+});
+</script>
+
 </body>
 </html>

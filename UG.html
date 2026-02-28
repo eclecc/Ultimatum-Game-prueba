@@ -69,6 +69,14 @@
             margin-bottom: 25px;
             text-align: center;
         }
+        
+        .card-screen h2 {
+            color: var(--color-text);
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
 
         .theory-box {
             text-align: left;
@@ -130,7 +138,7 @@
             position: relative;
         }
         
-        .panel h2 {
+        .panel h2.panel-title {
             font-size: 1.8em;
             margin-top: 0;
             color: var(--color-text-muted);
@@ -241,17 +249,12 @@
         #response-buttons.visible { visibility: visible; }
 
         /* --- Resultados --- */
-        .result-summary, .result-interpretation, .result-visualization {
+        .result-section {
             width: 100%;
             margin-bottom: 30px;
         }
-        .result-summary h2, .result-interpretation h2, .result-visualization h2 {
-            color: var(--color-text);
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .result-item { font-size: 1.3em; margin: 15px 0; }
+        
+        .result-item { font-size: 1.2em; margin: 15px 0; }
         .result-item span { font-weight: bold; color: var(--color-primary); }
         
         .visual-scale { margin: 25px 0; }
@@ -260,9 +263,15 @@
         .scale-bar { flex-grow: 1; height: 10px; background: linear-gradient(to right, #555, #999); border-radius: 10px; position: relative; }
         .scale-marker { width: 18px; height: 18px; background-color: var(--color-primary); border-radius: 50%; border: 2px solid var(--color-background); position: absolute; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         
-        .interpretation-box { background-color: #333; border-radius: 8px; padding: 20px; }
+        .interpretation-box { background-color: #333; border-radius: 8px; padding: 20px; margin-top: 15px; }
         .interpretation-box h3 { margin-top: 0; color: var(--color-primary); }
         .interpretation-box p { font-size: 1em; line-height: 1.5; color: var(--color-text-muted); }
+
+        .logistic-interpretation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
     </style>
 </head>
 <body>
@@ -291,14 +300,14 @@
     <div id="experiment-screen" class="screen">
         <div class="panel">
             <div id="trial-counter"></div>
-            <h2>ENTREVISTADOR</h2>
+            <h2 class="panel-title">ENTREVISTADOR</h2>
             <div class="subtitle">Reparto 10€ 💶</div>
             <div id="interviewer-options" class="options-container">
                 <!-- Opciones generadas por JS -->
             </div>
         </div>
         <div class="panel">
-            <h2>PARTICIPANTE</h2>
+            <h2 class="panel-title">PARTICIPANTE</h2>
             <div class="response-container">
                 <div id="participant-question">¿Aceptas la oferta?</div>
                 <div id="response-buttons">
@@ -318,36 +327,46 @@
     <!-- Pantalla 4: Resultados -->
     <div id="results-screen" class="screen card-screen">
          <h1>Resultados del Experimento</h1>
-        <div class="result-summary">
-            <h2>Métricas Clave</h2>
-            <p class="result-item">α (Sensibilidad a Inequidad): <span id="alpha-result"></span></p>
-            <p class="result-item">γ (Sensibilidad a Intención): <span id="gamma-result"></span></p>
-        </div>
-
-        <div class="result-visualization">
-            <h2>Perfil de Decisión</h2>
-            <div class="visual-scale">
-                <div class="label">Sensibilidad a la INEQUIDAD</div>
-                <div class="scale-bar-container">
-                    <span>Baja</span>
-                    <div class="scale-bar"><div id="alpha-marker" class="scale-marker"></div></div>
-                    <span>Alta</span>
-                </div>
-            </div>
-            <div class="visual-scale">
-                <div class="label">Sensibilidad a la INTENCIÓN</div>
-                <div class="scale-bar-container">
-                    <span>Baja</span>
-                    <div class="scale-bar"><div id="gamma-marker" class="scale-marker"></div></div>
-                    <span>Alta</span>
-                </div>
+        
+        <div class="result-section">
+            <h2>Estimación Simple</h2>
+            <div class="result-item">α (Inequidad): <span id="alpha-result"></span></div>
+            <div class="result-item">γ (Intención): <span id="gamma-result"></span></div>
+             <div class="interpretation-box" id="simple-interpretation-box">
+                <!-- Interpretación simple generada por JS -->
             </div>
         </div>
+        
+        <div class="result-section">
+            <h2>Modelo Logístico (Estimación Robusta)</h2>
+            <div id="logistic-results-container">
+                <div class="result-item">β1 (Sensibilidad a Inequidad): <span id="beta1-result"></span></div>
+                <div class="result-item">β2 (Sensibilidad a Intención): <span id="beta2-result"></span></div>
+                
+                <div class="visual-scale">
+                    <div class="label">Inequidad (β1)</div>
+                    <div class="scale-bar-container">
+                        <span>Baja</span>
+                        <div class="scale-bar"><div id="beta1-marker" class="scale-marker"></div></div>
+                        <span>Alta</span>
+                    </div>
+                </div>
+                <div class="visual-scale">
+                    <div class="label">Intención (β2)</div>
+                    <div class="scale-bar-container">
+                        <span>Baja</span>
+                        <div class="scale-bar"><div id="beta2-marker" class="scale-marker"></div></div>
+                        <span>Alta</span>
+                    </div>
+                </div>
 
-        <div class="result-interpretation">
-            <h2>Interpretación</h2>
-            <div id="interpretation-box" class="interpretation-box">
-                <!-- Interpretación generada por JS -->
+                <div class="logistic-interpretation-grid">
+                    <div class="interpretation-box" id="beta1-interpretation-box"></div>
+                    <div class="interpretation-box" id="beta2-interpretation-box"></div>
+                </div>
+            </div>
+             <div id="logistic-error-message" style="display: none;">
+                <p>El modelo logístico no pudo ser estimado con los datos actuales (ej. no hubo rechazos, o no hubo suficientes variaciones en las respuestas).</p>
             </div>
         </div>
 
@@ -365,6 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let experimentData = [];
     let trialList = [];
     let reactionStartTime;
+    // Almacenará los resultados finales para no recalcular
+    let finalResults = {};
 
     const dom = {
         mainContainer: document.getElementById('main-container'),
@@ -421,7 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseProportions = { '5/5': 0.125, '6/4': 0.25, '8/2': 0.375, '9/1': 0.25 };
         let trials = [];
 
-        // Crear ofertas
         for (const offer in baseProportions) {
             const count = Math.round(baseProportions[offer] * numTrials);
             for (let i = 0; i < count; i++) {
@@ -431,14 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
         while (trials.length < numTrials) trials.push({ offerType: '8/2' });
         trials = trials.slice(0, numTrials);
 
-        // Balancear intención y aleatorizar
         let intentions = new Array(numTrials).fill(0).fill(1, 0, Math.ceil(numTrials / 2));
         shuffleArray(intentions);
         
         trials.forEach((trial, index) => {
             trial.intention = intentions[index];
-            const [y, x] = trial.offerType.split('/').map(Number);
-            trial.inequityValue = y - x;
         });
         
         shuffleArray(trials);
@@ -515,6 +532,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedOption = e.currentTarget;
         const offer = selectedOption.dataset.offer;
         trialList[currentTrial].chosenOffer = offer;
+        
+        const [y, x] = offer.split('/').map(Number);
+        trialList[currentTrial].inequityValue = y - x;
+
 
         document.querySelectorAll('.option-button').forEach(opt => {
             opt.removeEventListener('click', handleInterviewerChoice);
@@ -546,7 +567,9 @@ document.addEventListener('DOMContentLoaded', () => {
             offerType: trial.offerType,
             intention: trial.intention,
             chosenOffer: trial.chosenOffer,
+            inequity: trial.inequityValue,
             response: response,
+            reject: (response === 'reject' ? 1 : 0),
             reactionTime: parseFloat(reactionTime.toFixed(2))
         });
         
@@ -556,20 +579,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function endExperiment() {
         setTimeout(() => {
-            const { alpha, gamma, interpretation } = calculateResults();
-            displayResults(alpha, gamma, interpretation);
+            finalResults = calculateResults();
+            displayResults(finalResults);
             switchToScreen('results');
         }, 500);
     }
     
-    function calculateResults() {
-        // Rangos para clasificación
-        const ranges = {
-            alpha: { low: 0.3, high: 1.5 },
-            gamma: { low: 0.1, high: 0.35 }
-        };
+    /**
+     * Implementa regresión logística con descenso de gradiente.
+     */
+    function runLogisticRegression(data) {
+        // Pre-requisito: No se puede entrenar si todos los resultados son iguales.
+        const allSame = data.every(d => d.reject === data[0].reject);
+        if (allSame) {
+            console.error("Logistic regression failed: all outcomes are the same.");
+            return null;
+        }
 
-        // Estimación de Alpha
+        const learningRate = 0.001;
+        const iterations = 2000;
+        let betas = [0, 0, 0]; // [β0, β1, β2]
+
+        const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+        for (let i = 0; i < iterations; i++) {
+            let gradients = [0, 0, 0];
+            for (const trial of data) {
+                const z = betas[0] + betas[1] * trial.inequity + betas[2] * trial.intention;
+                const prediction = sigmoid(z);
+                const error = prediction - trial.reject;
+                
+                gradients[0] += error; // Grad para β0
+                gradients[1] += error * trial.inequity; // Grad para β1
+                gradients[2] += error * trial.intention; // Grad para β2
+            }
+            
+            // Actualizar betas
+            betas[0] -= (gradients[0] / data.length) * learningRate;
+            betas[1] -= (gradients[1] / data.length) * learningRate;
+            betas[2] -= (gradients[2] / data.length) * learningRate;
+        }
+        
+        // Si los valores no son numéricos, el modelo falló.
+        if (betas.some(isNaN)) {
+             console.error("Logistic regression resulted in NaN values.");
+            return null;
+        }
+
+        return betas;
+    }
+
+
+    function calculateResults() {
+        // --- Estimación Simple ---
         const rejections = experimentData.filter(d => d.response === 'reject' && d.chosenOffer === d.offerType);
         const rejectionRates = {};
         ['9/1', '8/2', '6/4'].forEach(offer => {
@@ -583,64 +645,95 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (rejectionRates['8/2'] > 0.5) alpha = 0.9;
         else if (rejectionRates['9/1'] > 0.5) alpha = 0.2;
         
-        // Estimación de Gamma
         const dataWithIntention = experimentData.filter(d => d.intention === 1 && d.offerType !== '5/5');
         const dataWithoutIntention = experimentData.filter(d => d.intention === 0 && d.offerType !== '5/5');
 
         const rateWith = dataWithIntention.length > 0 ? dataWithIntention.filter(d => d.chosenOffer === d.offerType && d.response === 'reject').length / dataWithIntention.length : 0;
         const rateWithout = dataWithoutIntention.length > 0 ? dataWithoutIntention.filter(d => d.chosenOffer !== '5/5' && d.response === 'reject').length / dataWithoutIntention.length : 0;
         let gamma = Math.max(0, rateWith - rateWithout);
-
-        // Clasificación
-        const alphaClass = alpha < ranges.alpha.low ? 'bajo' : (alpha > ranges.alpha.high ? 'alto' : 'medio');
-        const gammaClass = gamma < ranges.gamma.low ? 'bajo' : (gamma > ranges.gamma.high ? 'alto' : 'medio');
-
-        // Interpretación
-        let title = "Perfil de Decisión Equilibrado";
-        let text = "Muestras un balance entre el beneficio propio, la equidad y la evaluación de las intenciones del otro. No hay una única tendencia que domine fuertemente tus decisiones en este contexto.";
-        if (alphaClass === 'alto' && gammaClass === 'bajo') {
-            title = "Rigidez Estructural";
-            text = "Tus decisiones están fuertemente guiadas por una regla de equidad. Rechazas la desigualdad en sí misma, independientemente de si el otro tenía o no alternativas.";
-        } else if (alphaClass === 'bajo' && gammaClass === 'bajo') {
-            title = "Perfil Utilitario";
-            text = "Priorizas la ganancia económica. Las consideraciones sobre la justicia de la oferta o las intenciones del proponente tienen un peso menor en tus decisiones.";
-        } else if (gammaClass === 'alto' && (alphaClass === 'medio' || alphaClass === 'alto')) {
-             title = "Alta Sensibilidad Interpersonal / Mentalización";
-            text = "Eres muy sensible a las intenciones detrás de las acciones de los demás. El hecho de que alguien tuviera una alternativa justa y eligiera no ofrecértela influye fuertemente en tu decisión de rechazar, incluso más que la desigualdad de la oferta en sí.";
-        } else if (alphaClass === 'alto' && gammaClass === 'alto') {
-            title = "Fuerte Sentido Normativo";
-            text = "Posees un robusto sentido de la justicia, reaccionando tanto a la desigualdad del resultado (norma de equidad) como a la intención de violar esa norma (mentalización).";
-        }
-
+        
+        // --- Modelo Logístico ---
+        const logisticBetas = runLogisticRegression(experimentData);
 
         return { 
             alpha: parseFloat(alpha.toFixed(2)), 
             gamma: parseFloat(gamma.toFixed(2)),
-            interpretation: { title, text }
+            betas: logisticBetas ? {
+                beta0: parseFloat(logisticBetas[0].toFixed(4)),
+                beta1: parseFloat(logisticBetas[1].toFixed(4)),
+                beta2: parseFloat(logisticBetas[2].toFixed(4))
+            } : null
         };
     }
 
-    function displayResults(alpha, gamma, interpretation) {
+    function displayResults(results) {
+        const { alpha, gamma, betas } = results;
+        
+        // --- Display Estimación Simple ---
         document.getElementById('alpha-result').textContent = alpha;
         document.getElementById('gamma-result').textContent = gamma;
+        
+        const alphaClass = alpha < 0.3 ? 'bajo' : (alpha > 1.5 ? 'alto' : 'medio');
+        const gammaClass = gamma < 0.1 ? 'bajo' : (gamma > 0.35 ? 'alto' : 'medio');
+        
+        let simpleInterpretation = "";
+        if (alphaClass === 'alto' && gammaClass === 'bajo') {
+            simpleInterpretation = "<strong>Rigidez Estructural</strong>: Fuerte reacción a la desigualdad, sin importar la intención.";
+        } else if (alphaClass === 'bajo' && gammaClass === 'bajo') {
+            simpleInterpretation = "<strong>Perfil Utilitario</strong>: Foco en la ganancia, con baja influencia de la equidad o intención.";
+        } else if (gammaClass === 'alto') {
+             simpleInterpretation = "<strong>Alta Sensibilidad Interpersonal</strong>: La intención del otro es un factor clave en tus decisiones.";
+        } else if (alphaClass === 'alto' && gammaClass === 'alto') {
+            simpleInterpretation = "<strong>Fuerte Sentido Normativo</strong>: Reaccionas tanto a la norma de equidad como a la intención de violarla.";
+        } else {
+            simpleInterpretation = "<strong>Perfil de Decisión Equilibrado</strong>: Balance entre beneficio, equidad e intención.";
+        }
+        document.getElementById('simple-interpretation-box').innerHTML = `<p>${simpleInterpretation}</p>`;
 
-        const alphaPercent = Math.min(100, (alpha / 2.5) * 100);
-        const gammaPercent = Math.min(100, (gamma / 0.5) * 100);
+        // --- Display Modelo Logístico ---
+        if (betas) {
+            document.getElementById('logistic-results-container').style.display = 'block';
+            document.getElementById('logistic-error-message').style.display = 'none';
 
-        document.getElementById('alpha-marker').style.left = `${alphaPercent}%`;
-        document.getElementById('gamma-marker').style.left = `${gammaPercent}%`;
+            document.getElementById('beta1-result').textContent = betas.beta1;
+            document.getElementById('beta2-result').textContent = betas.beta2;
 
-        const interpretationBox = document.getElementById('interpretation-box');
-        interpretationBox.innerHTML = `<h3>${interpretation.title}</h3><p>${interpretation.text}</p>`;
+            // Visualización de Betas (mapeo de -2 a 2 en la barra de 0 a 100)
+            const mapRange = (value, min, max) => Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
+            document.getElementById('beta1-marker').style.left = `${mapRange(betas.beta1, -2, 2)}%`;
+            document.getElementById('beta2-marker').style.left = `${mapRange(betas.beta2, -2, 2)}%`;
+
+            // Interpretación de Betas
+            let beta1_interp = "";
+            if (betas.beta1 > 0.1) beta1_interp = "A mayor inequidad, mayor probabilidad de rechazo. Eres sensible a la desigualdad.";
+            else if (betas.beta1 < -0.1) beta1_interp = "Patrón atípico: a mayor inequidad, menor probabilidad de rechazo.";
+            else beta1_interp = "La magnitud de la inequidad tiene una baja influencia en tu decisión.";
+            document.getElementById('beta1-interpretation-box').innerHTML = `<h3>β1 (Inequidad)</h3><p>${beta1_interp}</p>`;
+
+            let beta2_interp = "";
+            if (betas.beta2 > 0.1) beta2_interp = "La existencia de una alternativa justa que fue ignorada aumenta significativamente la probabilidad de rechazo.";
+            else if (betas.beta2 < -0.1) beta2_interp = "Patrón atípico: castigas menos cuando el otro tenía una alternativa justa.";
+            else beta2_interp = "La intención percibida no parece modificar sustancialmente tu decisión.";
+            document.getElementById('beta2-interpretation-box').innerHTML = `<h3>β2 (Intención)</h3><p>${beta2_interp}</p>`;
+        } else {
+            // Error en el modelo
+            document.getElementById('logistic-results-container').style.display = 'none';
+            document.getElementById('logistic-error-message').style.display = 'block';
+        }
     }
     
     dom.downloadCsvBtn.addEventListener('click', () => {
-        const { alpha, gamma } = calculateResults();
         let csvContent = "data:text/csv;charset=utf-8,";
         
         csvContent += "Parametro,Valor\r\n";
-        csvContent += `alpha_estimado,${alpha}\r\n`;
-        csvContent += `gamma_estimado,${gamma}\r\n\r\n`;
+        csvContent += `alpha_simple,${finalResults.alpha}\r\n`;
+        csvContent += `gamma_simple,${finalResults.gamma}\r\n`;
+        if (finalResults.betas) {
+            csvContent += `beta0_log,${finalResults.betas.beta0}\r\n`;
+            csvContent += `beta1_log_inequity,${finalResults.betas.beta1}\r\n`;
+            csvContent += `beta2_log_intention,${finalResults.betas.beta2}\r\n`;
+        }
+        csvContent += "\r\n";
 
         if (experimentData.length > 0) {
             const headers = Object.keys(experimentData[0]).join(',');
